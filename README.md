@@ -1,6 +1,6 @@
 # task4-hashtable
 
-[![Build Status](https://travis-ci.com/itmo-java-basics-2020/task3-hashtable-NikolayDupak.svg?branch=master)](https://travis-ci.com/itmo-java-basics-2020/task3-hashtable-NikolayDupak)
+[![Build Status](https://travis-ci.com/itmo-java-basics-2020/task3-hashtable-NikolayDupak.svg?branch=Task4)](https://travis-ci.com/itmo-java-basics-2020/task3-hashtable-NikolayDupak)
 
 
 Требуется разработать реализацию ассоциативного массива - структуры данных, которая хранит пары (ключ - значение) - на основе хеш-таблицы.
