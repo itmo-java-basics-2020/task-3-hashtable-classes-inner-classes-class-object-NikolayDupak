@@ -36,142 +36,105 @@ public class HashTable {
 
 
     Object put(Object key, Object value) {
-/*
-        System.out.print("#put");
-        System.out.print(key);
-        System.out.print("-");
-        System.out.print(value);
-        System.out.println("#");*/
-        Entry Elem = new Entry(key, value);
-
-        int HashCode = Math.abs(key.hashCode());
-        HashCode = HashCode % Table.length;
-
-        if (CountOfEntry > Table.length*loadFactor) {
+        if (CountOfEntry > Table.length * loadFactor || CountOfEntry == Table.length) {
             resize();
         }
+
+        Entry Elem = new Entry(key, value);
         Object LastValue = get(key);
+        boolean check = false;
 
-        if (Table[HashCode] == null) {
-            Table[HashCode] = Elem;
+        if (LastValue == null) {
+            check = true;
             CountOfEntry++;
-            Been[HashCode] = true;
-            return LastValue;
-        }
-        if (Table[HashCode].Key.equals(key)) {
-            //Entry LastValue = Table[HashCode];
-            Table[HashCode] = Elem;
-            Been[HashCode] = true;
-            return LastValue;
-        }
-        while (true){
-            //System.out.print("-");
-            HashCode++;
-            if (HashCode >= Table.length){
-                HashCode = 0;
-            }
 
-            if (Table[HashCode] == null) {
-                Table[HashCode] = Elem;
-                CountOfEntry++;
-                Been[HashCode] = true;
-                return LastValue;
-            }
-            if (Table[HashCode].Key.equals(key)) {
-
-                Table[HashCode] = Elem;
-                Been[HashCode] = true;
-                return LastValue;
-            }
         }
 
-
+        int ind = GetIndex(key, check);
+        Table[ind] = Elem;
+        Been[ind] = true;
+        return LastValue;
     }
 
     Object get(Object key) {
-        //System.out.print("#get");
-        //System.out.print(key);
-        //System.out.println("-");
-        //System.out.print(value);
-        //System.out.println("#");
-
-
-        int HashCode = Math.abs(key.hashCode());
-        HashCode = HashCode % Table.length;
-        //System.out.print("hash = ");
-        //System.out.println(HashCode);
-
-        while (Been[HashCode]){
-
-
-            if (Table[HashCode] != null && Table[HashCode].Key.equals(key)) {
-               /* System.out.print("Hashcode = ");
-                System.out.println(HashCode);
-                System.out.print(Table[HashCode].Value);
-                System.out.println("#");*/
-                return Table[HashCode].Value;
-            }
-            HashCode++;
-            if (HashCode >= Table.length){
-                HashCode = 0;
-
-            }
-
+        int ind = GetIndex(key, false);
+        if (Table[ind] == null){
+            return null;
         }
-        //System.out.println("#");
-        return null;
+
+        return Table[ind].Value;
     }
 
+
     Object remove(Object key) {
-        int HashCode = key.hashCode();
-        HashCode = Math.abs(HashCode % Table.length);
+        int ind = GetIndex(key, false);
+        Entry LastElem = Table[ind];
+        if (LastElem != null){
 
-
-        while (Been[HashCode]){
-
-
-            if (Table[HashCode] != null && Table[HashCode].Key.equals(key)) {
-
-                Entry LastValue = Table[HashCode];
-                Table[HashCode] = null;
-                CountOfEntry--;
-                return LastValue.Value;
-            }
-            HashCode++;
-            if (HashCode >= Table.length){
-                HashCode = 0;
-
-            }
-
+            Table[ind] = null;
+            CountOfEntry--;
+            return LastElem.Value;
         }
         return null;
-
     }
 
     int size() {
         return CountOfEntry;
     }
 
-    void resize() {
+    /**
+     *
+     * @param key
+     * @param FreeSpace
+     * true - if put new element
+     * false - if find last value or change value
+     * @return int
+     * index for hash of key
+     */
+    private int GetIndex(Object key, boolean FreeSpace) {
+        int Hash = Math.abs(key.hashCode());
+        Hash = Hash % Table.length;
+        if (FreeSpace){
+            while (true) {
+                if (Table[Hash] == null){
+                    return Hash;
+                }
+                Hash++;
+                if (Hash == Table.length){
+                    Hash = 0;
+                }
 
-        Entry[] NewTable = new Entry[Table.length*2];
-        Been = new boolean[NewTable.length];
-        //System.out.print("res = ");
-        System.out.println(NewTable.length);
-        for (int i = 0; i < Table.length; i++) {
-            if (Table[i] != null){
-                Entry Elem = Table[i];
-                int HashCode = Math.abs(Elem.Key.hashCode());
-                HashCode = HashCode % NewTable.length;
-                NewTable[HashCode] = Elem;
-                Been[HashCode] = true;
-                //System.out.print(Elem.Key);
-                //System.out.print("-");
-                //System.out.print(HashCode);
             }
         }
 
-        this.Table = NewTable;
+        while (true) {
+            if (Table[Hash] == null && !Been[Hash]){
+                return Hash;
+            }
+            if (Table[Hash] != null && Table[Hash].Key.equals(key)) {
+                return Hash;
+            }
+            Hash++;
+            if (Hash == Table.length){
+                Hash = 0;
+            }
+
+        }
+
+    }
+
+    void resize() {
+
+        Entry[] LastTable = Table;
+        Table = new Entry[Table.length * 2];
+        Been = new boolean[Table.length];
+        CountOfEntry = 0;
+
+        for (Entry Elem : LastTable) {
+            if (Elem != null) {
+                put(Elem.Key, Elem.Value);
+            }
+        }
     }
 
     private class Entry {
