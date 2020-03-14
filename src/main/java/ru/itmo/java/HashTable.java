@@ -1,7 +1,5 @@
 package ru.itmo.java;
 
-import java.util.Map;
-
 public class HashTable {
     private Entry[] Table;
     private boolean[] Been;
@@ -9,14 +7,8 @@ public class HashTable {
     private double loadFactor = 0.5;
 
 
-    HashTable() {
-        Table = new Entry[10];
-        Been = new boolean[10];
-
-    }
-
     HashTable(int initialCapacity) {
-        //System.out.println(initialCapacity);
+
         Table = new Entry[initialCapacity];
         Been = new boolean[initialCapacity];
         for (int i = 0; i < initialCapacity; i++) {
@@ -25,7 +17,6 @@ public class HashTable {
     }
 
     HashTable(int initialCapacity, double loadFactor) {
-        System.out.println(initialCapacity);
         Table = new Entry[initialCapacity];
         Been = new boolean[initialCapacity];
         this.loadFactor = loadFactor;
@@ -47,7 +38,6 @@ public class HashTable {
         if (LastValue == null) {
             check = true;
             CountOfEntry++;
-
         }
 
         int ind = GetIndex(key, check);
@@ -58,10 +48,9 @@ public class HashTable {
 
     Object get(Object key) {
         int ind = GetIndex(key, false);
-        if (Table[ind] == null){
+        if (Table[ind] == null) {
             return null;
         }
-
         return Table[ind].Value;
     }
 
@@ -69,8 +58,7 @@ public class HashTable {
     Object remove(Object key) {
         int ind = GetIndex(key, false);
         Entry LastElem = Table[ind];
-        if (LastElem != null){
-
+        if (LastElem != null) {
             Table[ind] = null;
             CountOfEntry--;
             return LastElem.Value;
@@ -83,44 +71,39 @@ public class HashTable {
     }
 
     /**
-     *
      * @param key
-     * @param FreeSpace
-     * true - if put new element
-     * false - if find last value or change value
+     * @param FreeSpace true - if put new element
+     *                  false - if find last value or change value
      * @return int
      * index for hash of key
      */
     private int GetIndex(Object key, boolean FreeSpace) {
         int Hash = Math.abs(key.hashCode());
         Hash = Hash % Table.length;
-        if (FreeSpace){
+        if (FreeSpace) {
             while (true) {
-                if (Table[Hash] == null){
+                if (Table[Hash] == null) {
                     return Hash;
                 }
                 Hash++;
-                if (Hash == Table.length){
+                if (Hash == Table.length) {
                     Hash = 0;
                 }
-
             }
         }
 
         while (true) {
-            if (Table[Hash] == null && !Been[Hash]){
+            if (Table[Hash] == null && !Been[Hash]) {
                 return Hash;
             }
             if (Table[Hash] != null && Table[Hash].Key.equals(key)) {
                 return Hash;
             }
             Hash++;
-            if (Hash == Table.length){
+            if (Hash == Table.length) {
                 Hash = 0;
             }
-
         }
-
     }
 
     void resize() {
@@ -145,7 +128,5 @@ public class HashTable {
             this.Key = key;
             this.Value = value;
         }
-
     }
-
 }
