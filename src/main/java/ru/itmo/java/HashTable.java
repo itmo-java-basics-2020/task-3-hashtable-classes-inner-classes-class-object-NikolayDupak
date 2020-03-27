@@ -1,121 +1,129 @@
 package ru.itmo.java;
 
 public class HashTable {
-    private Entry[] Table;
-    private boolean[] Been;
-    private int CountOfEntry = 0;
-    private double loadFactor = 0.5;
+    private Entry[] tableOfElements;
+    private boolean[] wasUsed;
+    private int countOfEntry = 0;
+    private double loadFactor;
+    private static double startLoadFactor = 0.5;
 
 
-    HashTable(int initialCapacity) {
-
-        Table = new Entry[initialCapacity];
-        Been = new boolean[initialCapacity];
-        for (int i = 0; i < initialCapacity; i++) {
-            Been[i] = false;
-        }
+    public HashTable(int initialCapacity) {
+        this(initialCapacity, startLoadFactor);
     }
 
-    HashTable(int initialCapacity, double loadFactor) {
-        Table = new Entry[initialCapacity];
-        Been = new boolean[initialCapacity];
+    public HashTable(int initialCapacity, double loadFactor) {
+        this.tableOfElements = new Entry[initialCapacity];
+        this.wasUsed = new boolean[initialCapacity];
         this.loadFactor = loadFactor;
         for (int i = 0; i < initialCapacity; i++) {
-            Been[i] = false;
+            this.wasUsed[i] = false;
         }
     }
 
 
-    Object put(Object key, Object value) {
-        if (CountOfEntry > Table.length * loadFactor || CountOfEntry == Table.length) {
+    public Object put(Object key, Object value) {
+        if (this.countOfEntry > this.tableOfElements.length * this.loadFactor
+                || this.countOfEntry == this.tableOfElements.length) {
             resize();
         }
 
-        Entry Elem = new Entry(key, value);
-        Object LastValue = get(key);
+        Entry elem = new Entry(key, value);
+        Object lastValue = get(key);
         boolean check = false;
 
-        if (LastValue == null) {
+        if (lastValue == null) {
             check = true;
-            CountOfEntry++;
+            this.countOfEntry++;
         }
 
-        int ind = GetIndex(key, check);
-        Table[ind] = Elem;
-        Been[ind] = true;
-        return LastValue;
+        int ind = getIndex(key, check);
+        this.tableOfElements[ind] = elem;
+        this.wasUsed[ind] = true;
+        return lastValue;
     }
 
-    Object get(Object key) {
-        int ind = GetIndex(key, false);
-        if (Table[ind] == null) {
+    public Object get(Object key) {
+        int ind = getIndex(key, false);
+        if (this.tableOfElements[ind] == null) {
             return null;
         }
-        return Table[ind].Value;
+        return this.tableOfElements[ind].getValue();
     }
 
 
-    Object remove(Object key) {
-        int ind = GetIndex(key, false);
-        Entry LastElem = Table[ind];
+    public Object remove(Object key) {
+        int ind = getIndex(key, false);
+        Entry LastElem = this.tableOfElements[ind];
         if (LastElem != null) {
-            Table[ind] = null;
-            CountOfEntry--;
-            return LastElem.Value;
+            this.tableOfElements[ind] = null;
+            this.countOfEntry--;
+            return LastElem.getValue();
         }
         return null;
     }
 
-    int size() {
-        return CountOfEntry;
+    public int size() {
+        return this.countOfEntry;
+    }
+
+    public double getLoadFactor() {
+        return loadFactor;
+    }
+
+    public void setLoadFactor(double loadFactor) {
+        if (loadFactor >= 1) {
+            this.loadFactor = 1;
+        }
+        this.loadFactor = loadFactor;
     }
 
     /**
      * @param key
-     * @param FreeSpace true - if put new element
+     * @param freeSpace true - if put new element
      *                  false - if find last value or change value
      * @return int
      * index for hash of key
      */
-    private int GetIndex(Object key, boolean FreeSpace) {
-        int Hash = Math.abs(key.hashCode());
-        Hash = Hash % Table.length;
-        if (FreeSpace) {
+    private int getIndex(Object key, boolean freeSpace) {
+        int hash = Math.abs(key.hashCode());
+        hash = hash % this.tableOfElements.length;
+        if (freeSpace) {
             while (true) {
-                if (Table[Hash] == null) {
-                    return Hash;
+                if (this.tableOfElements[hash] == null) {
+                    return hash;
                 }
-                Hash++;
-                if (Hash == Table.length) {
-                    Hash = 0;
+                hash++;
+                if (hash == this.tableOfElements.length) {
+                    hash = 0;
                 }
             }
         }
 
         while (true) {
-            if (Table[Hash] == null && !Been[Hash]) {
-                return Hash;
+            if (this.tableOfElements[hash] == null && !this.wasUsed[hash]) {
+                return hash;
             }
-            if (Table[Hash] != null && Table[Hash].Key.equals(key)) {
-                return Hash;
+            if (this.tableOfElements[hash] != null && this.tableOfElements[hash].getKey().equals(key)) {
+                return hash;
             }
-            Hash++;
-            if (Hash == Table.length) {
-                Hash = 0;
+            hash++;
+            if (hash == this.tableOfElements.length) {
+                hash = 0;
             }
         }
     }
 
-    void resize() {
+    private void resize() {
 
-        Entry[] LastTable = Table;
-        Table = new Entry[Table.length * 2];
-        Been = new boolean[Table.length];
-        CountOfEntry = 0;
+        Entry[] lastTable = this.tableOfElements;
+        this.tableOfElements = new Entry[this.tableOfElements.length * 2];
+        this.wasUsed = new boolean[this.tableOfElements.length];
+        this.countOfEntry = 0;
 
-        for (Entry Elem : LastTable) {
+        for (Entry Elem : lastTable) {
             if (Elem != null) {
-                put(Elem.Key, Elem.Value);
+                put(Elem.getKey(), Elem.getValue());
             }
         }
     }
@@ -124,9 +132,20 @@ public class HashTable {
         private Object Key;
         private Object Value;
 
+
         Entry(Object key, Object value) {
             this.Key = key;
             this.Value = value;
         }
+
+
+        public Object getKey() {
+            return Key;
+        }
+
+        public Object getValue() {
+            return Value;
+        }
+
     }
 }
